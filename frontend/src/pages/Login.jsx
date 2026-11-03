@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Lock, User } from 'lucide-react';
 
+// Backend URL comes from the .env files (localhost in dev, Vercel in production)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -12,7 +15,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', { username, password });
+      const res = await axios.post(`${API_URL}/api/auth/login`, { username, password });
       if (res.data.success) {
         localStorage.setItem('token', res.data.token);
         navigate('/dashboard');
@@ -60,7 +63,7 @@ export default function Login() {
               />
             </div>
           </div>
-          <button type="submit" className="w-full bg-white text-black font-medium py-2 rounded-lg text-sm hover:bg-neutral-200 transition mt-2">
+          <button type="submit" className="w-full bg-white text-black font-medium py-2 rounded-lg text-sm hover:bg-neutral-200 transition mt-2 cursor-pointer">
             Sign In
           </button>
         </form>
