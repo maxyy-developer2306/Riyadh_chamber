@@ -12,11 +12,14 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 dotenv.config();
 
-connectDB();
-
 const app = express();
 
-app.use(cors());
+// CORS must come first so every response (including preflight and errors) carries the headers
+app.use(cors({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
 // Simple root route so the deployed URL shows something instead of an error
@@ -38,8 +41,23 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Make sure the database is connected before handling any API route
+app.use(async (req, res, next) => {
+    const conn = await connectDB();
+    if (!conn) {
+        return res.status(500).json({ success: false, message: 'Database connection failed' });
+    }
+    next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+
+// Global error handler so unexpected errors return JSON (with CORS headers) instead of crashing
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message || 'Server error' });
+});
 
 const PORT = process.env.PORT || 5000;
 
