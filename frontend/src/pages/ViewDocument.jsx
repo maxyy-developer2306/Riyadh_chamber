@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
+// Backend URL comes from the .env files (localhost in dev, Vercel in production)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
 export default function ViewDocument() {
@@ -38,7 +41,7 @@ export default function ViewDocument() {
   }, []);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/documents/${id}`)
+    axios.get(`${API_URL}/api/documents/${id}`)
       .then(res => {
         if (res.data.success) {
           setDoc(res.data.data);

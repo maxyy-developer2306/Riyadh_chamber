@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Eye, Edit, EyeOff, CheckCircle, Trash2, Plus, LogOut, Loader2, AlertTriangle, X, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Backend URL comes from the .env files (localhost in dev, Vercel in production)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function Dashboard() {
   const [docs, setDocs] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, hidden: 0 });
@@ -23,7 +26,7 @@ export default function Dashboard() {
 
   const fetchDocs = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/documents');
+      const res = await axios.get(`${API_URL}/api/documents`);
       if (res.data.success) {
         setDocs(res.data.data);
         setStats({ total: res.data.total, active: res.data.active, hidden: res.data.hidden });
@@ -55,7 +58,7 @@ export default function Dashboard() {
     if (file) data.append('doc_file', file);
 
     try {
-      await axios.post('http://localhost:5000/api/documents', data);
+      await axios.post(`${API_URL}/api/documents`, data);
       setShowAddModal(false);
       setFormData({ org_name: '', national_num: '', member_num: '', doc_num: '', status: 'مصدقة' });
       setFile(null);
@@ -90,7 +93,7 @@ export default function Dashboard() {
     if (file) data.append('doc_file', file);
 
     try {
-      await axios.put(`http://localhost:5000/api/documents/${currentEditId}`, data);
+      await axios.put(`${API_URL}/api/documents/${currentEditId}`, data);
       setShowEditModal(false);
       setCurrentEditId(null);
       setFormData({ org_name: '', national_num: '', member_num: '', doc_num: '', status: 'مصدقة' });
@@ -105,7 +108,7 @@ export default function Dashboard() {
 
   const toggleStatus = async (id) => {
     try {
-      await axios.patch(`http://localhost:5000/api/documents/${id}/toggle`);
+      await axios.patch(`${API_URL}/api/documents/${id}/toggle`);
       fetchDocs();
     } catch (err) { console.error(err); }
   };
@@ -113,7 +116,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this record?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/documents/${id}`);
+        await axios.delete(`${API_URL}/api/documents/${id}`);
         fetchDocs();
       } catch (err) { console.error(err); }
     }
