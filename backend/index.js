@@ -19,6 +19,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Simple root route so the deployed URL shows something instead of an error
+app.get('/', (req, res) => {
+    res.json({ success: true, message: 'Riyadh Chamber API is running' });
+});
+
 // 🟢 Database Health Check API
 app.get('/api/health', (req, res) => {
     const dbState = mongoose.connection.readyState;
@@ -38,6 +43,11 @@ app.use('/api/documents', documentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Listen only when running locally; Vercel runs the exported app as a serverless function
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+export default app;
